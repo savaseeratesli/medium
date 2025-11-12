@@ -1,0 +1,44 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/rhel9"
+  config.vm.box_version = "4.3.12"
+
+  machines = [
+    { name: "master1", ip: "192.168.68.105" },
+    { name: "slave1", ip: "192.168.68.106" },
+    { name: "manage1", ip: "192.168.68.107" }
+  ]
+
+  machines.each do |machine|
+    config.vm.define machine[:name] do |node|
+      node.vm.hostname = machine[:name]
+
+      node.vm.provider "virtualbox" do |vb|
+        vb.name = machine[:name]
+        vb.memory = "2048"
+        vb.cpus = 2
+      end
+
+      node.vm.network "public_network", ip: machine[:ip], bridge: "Automatic"
+      node.vm.synced_folder "D:\\medium\\paylasim", "/opt"
+
+      # --- SSH ayarları için provisioning ---
+      node.vm.provision "shell", inline: <<-SHELL
+        # root şifresi ata
+        echo "root:vagrant" | chpasswd
+
+		# SSH config dosyasını güvenilir şekilde düzenle
+		sed -i '/^PasswordAuthentication/d' /etc/ssh/sshd_config
+		sed -i '/^PermitRootLogin/d' /etc/ssh/sshd_config
+		
+		echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+		echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+
+        # SSH servisini restart et
+        systemctl restart sshd
+      SHELL
+    end
+  end
+end
