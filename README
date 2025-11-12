@@ -1,5 +1,18 @@
 #Kaynakça
+https://developer.hashicorp.com/vagrant/install
 https://portal.cloud.hashicorp.com/vagrant/discover/generic/centos9s
+
+
+curl -O https://bootstrap.pypa.io/get-pip.py
+python3 get-pip.py --user
+~/.local/bin/pip install ansible --user
+Sonra kontrol edin:
+
+bash
+Kodu kopyala
+~/.local/bin/ansible --version
+
+
 
 
 
